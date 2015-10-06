@@ -7,11 +7,6 @@
 #include "geometry_msgs/Twist.h"
 
 #include "pid.hpp"
-/**
- * 
- * Author: Tobias Lundin
- */
-
 
 class MotorController
 {
@@ -102,8 +97,8 @@ class MotorController
 	        d_p2 = d_2*(error2-old_error2)/dt;
         }
 
-        pwm.PWM1 = 75+int(p_1*error1 + i_p1 + d_p1);
-        pwm.PWM2 =75+ int(p_2*error2 + i_p2 + d_p2);
+        pwm.PWM1 = 65+int(p_1*error1 + i_p1 + d_p1);
+        pwm.PWM2 =65+ int(p_2*error2 + i_p2 + d_p2);
 
        /* if(desired_w1>0 && pwm.PWM1<70){
         	pwm.PWM1=70;
