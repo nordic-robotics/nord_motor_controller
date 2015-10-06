@@ -39,7 +39,10 @@ class TwistPublisher
 		pi = 3.141592;
 		dt=1.0/10;
 	
-		/*for(x=0;x<1000;x++){//testing
+
+
+/*
+		for(x=0;x<1000;x++){//testing
 			vec_dist[x]=0.2+x*0.1;
 			if(x>500){
 				vec_degree[x]=25*pi/(180*(x+1));
