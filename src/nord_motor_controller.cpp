@@ -7,11 +7,6 @@
 #include "geometry_msgs/Twist.h"
 
 #include "pid.hpp"
-/**
- * 
- * Author: Tobias Lundin
- */
-
 
 class MotorController
 {
@@ -32,7 +27,7 @@ class MotorController
 
 		PWM_pub = n.advertise<ras_arduino_msgs::PWM>("/arduino/pwm", 1000);
 
-        b 	= 0.204; r 	= 0.09935;
+        	b= 0.204; r= 0.09935;
 		pi = 3.141592;
 
 		pwm.PWM1 = 0; pwm.PWM2 = 0;
@@ -40,6 +35,9 @@ class MotorController
 		p_1 = std::stod(argv[1]); 	p_2 = std::stod(argv[4]);
 		i_1	= std::stod(argv[2]); 	i_2 = std::stod(argv[5]);
 		d_1 = std::stod(argv[3]);   d_2 = std::stod(argv[6]);
+		
+		/*p_1=4.9 i_1=2.8 d_1=-0.25
+		p_2=6.3 i_2=3.45 d_1=-0.5*/
 
 		d_p1 = 0; d_p2 = 0;
 		i_p1 = 0; i_p2 = 0;
@@ -58,9 +56,9 @@ class MotorController
 		// pwm2.max =  255;
 		// pwm2.min = -255;
 
-		forward   = 0.5;//delete after gains setting
-        desired_w = 0;
-        desired_w1 = (forward-(b/2)*desired_w)/r;
+		forward   = 0.6;//delete after gains setting
+        	desired_w = 0;
+       		desired_w1 = (forward-(b/2)*desired_w)/r;
 		desired_w2 = (forward+(b/2)*desired_w)/r;
 
 		controllerPart();
@@ -102,8 +100,8 @@ class MotorController
 	        d_p2 = d_2*(error2-old_error2)/dt;
         }
 
-        pwm.PWM1 = 75+int(p_1*error1 + i_p1 + d_p1);
-        pwm.PWM2 =75+ int(p_2*error2 + i_p2 + d_p2);
+        pwm.PWM1 = 20+int(p_1*error1 + i_p1 + d_p1);
+        pwm.PWM2 =30+ int(p_2*error2 + i_p2 + d_p2);
 
        /* if(desired_w1>0 && pwm.PWM1<70){
         	pwm.PWM1=70;
@@ -128,11 +126,11 @@ class MotorController
  		}
  		// pwm.PWM1 = pwm1(estimated_w1, desired_w1, dt);
    		// pwm.PWM2 = pwm2(estimated_w2, desired_w2, dt);
-        ROS_INFO("About to publish");
-        print_info();
+		ROS_INFO("About to publish");
+		print_info();
 
-        // pwm.PWM1 = 100;
-        // pwm.PWM2 = 100;
+		// pwm.PWM1 = 100;
+		// pwm.PWM2 = 100;
  		PWM_pub.publish(pwm);
 
 	}
@@ -198,7 +196,7 @@ int main(int argc, char **argv){
 	// ~ while everything is running as it should
 	while(ros::ok()){
  		//run.print_info();
-      	run.controllerPart();
+      		run.controllerPart();
 		ros::spinOnce();
 		loop_rate.sleep(); // go to sleep
 
