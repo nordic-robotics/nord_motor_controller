@@ -86,6 +86,11 @@ class TwistPublisher
         des_dir= 0;
 		dist_object=command.distance;
 		dir_object=command.angle;
+
+		if(dist_object >= 2){
+			dist_object = 0.40;
+			dir_object 	= 0;
+		}
 	}
 	
 	/*void updateval(int z){// just for testing
