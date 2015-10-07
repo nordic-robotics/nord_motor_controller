@@ -195,10 +195,10 @@ class MotorController
 
 int main(int argc, char **argv){
 
-	/*if(argc<6){
+	if(argc<6){
 		ROS_INFO("Not enough arguments: p1 i1 d1 p2 i2 d2");
 		return 1;
-	}*/
+	}
 	// Initiates ROS and gives the node name "PWM_MAX"
 	ros::init(argc, argv, "nord_motor_controller");
 	
