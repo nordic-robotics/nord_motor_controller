@@ -18,8 +18,8 @@ class TwistPublisher
 	ros::Subscriber direction_sub;
 	
 	TwistPublisher(char ** argv){
-		direction_sub=n.subscribe("/nord/img/closest",1000,&TwistPublisher::directionCallback);//NAME OF THE TOPIC!!!!
-		twist_pub = n.advertise<geometry_msgs::Twist>("/motor_controller/twist", 1000);
+		direction_sub=n.subscribe("/nord/img/closest",1,&TwistPublisher::directionCallback, this);//NAME OF THE TOPIC!!!!
+		twist_pub = n.advertise<geometry_msgs::Twist>("/motor_controller/twist", 1);
 		
 		twist.linear.x=0; twist.linear.y=0; twist.linear.z=0;
 		twist.angular.x=0; twist.angular.y=0; twist.angular.z=0;
@@ -42,7 +42,7 @@ class TwistPublisher
 
 		/*p_vel=4.1 i_vel=0.2 d_vel=-0.16 
 		p_ang=4 i_ang=0.1 d_ang=-0.05*/
-		
+		// 4.1 0.2 -0.16 4 0.1 -0.05
 /*
 		for(x=0;x<1000;x++){//testing
 			vec_dist[x]=0.2+x*0.1;
@@ -65,27 +65,27 @@ class TwistPublisher
 	
 	void  ControlPart(){
 		
-		real_vel= vel_pid(est_dist, des_dist, dt);
-   		twist.angular.z = ang_pid(est_dir, des_dir, dt);
-	
+		twist.linear.x= vel_pid(des_dist,dist_object , dt);
+   		twist.angular.z = ang_pid(des_dir, dir_object, dt);
+
 	/*	if(real_vel<0.3 && real_vel>0){
 			real_vel=0;
 		}else if(real_vel>-0.3 && real_vel<0){
 			real_vel=0;
 		}*/
 		
-		twist.linear.x=real_vel;//change this to =vel_pid
-		est_dist +=twist.linear.x*dt;
-		est_dir +=twist.angular.z*dt;
+		
+		// est_dist +=twist.linear.x*dt;
+		// est_dir +=twist.angular.z*dt;
 		
 		twist_pub.publish(twist);
 	}
 	
 	void directionCallback(const nord_messages::RelativePoint command){
-        des_dist= command.distance;
-        des_dir= command.angle;
-		est_dist=0.35;
-		est_dir=0;
+        des_dist= 0.40;
+        des_dir= 0;
+		dist_object=command.distance;
+		dir_object=command.angle;
 	}
 	
 	/*void updateval(int z){// just for testing
@@ -100,9 +100,9 @@ class TwistPublisher
 		ROS_INFO("vel: [%f]", twist.linear.x);
  		ROS_INFO("ang_vel: [%f]", twist.angular.z);
  		ROS_INFO("des_dist: [%f]", des_dist);
- 		ROS_INFO("est_dist: [%f]", est_dist);
+ 		ROS_INFO("est_dist: [%f]", dist_object);
  		ROS_INFO("des_dir: [%f]", des_dir);
-		ROS_INFO("est_dir: [%f]", est_dir);
+		ROS_INFO("est_dir: [%f]", dir_object);
  		ROS_INFO("p_vel: %f i_vel:%f  d_vel:%f ",p_vel,i_vel,d_vel);
  		ROS_INFO("p_ang: %f i_ang:%f  d_ang:%f ",p_ang,i_ang,d_ang);
 	}
@@ -115,7 +115,7 @@ class TwistPublisher
 		int x; 
 		
 		double pi;
-		double dt,est_dist,des_dist,est_dir,des_dir;
+		double dt,dir_object,des_dist,dist_object,des_dir;
 		double real_vel;
 		double p_vel,i_vel,d_vel; double p_ang,i_ang,d_ang;
 		kontroll::pid<double> vel_pid; kontroll::pid<double> ang_pid;
@@ -133,13 +133,15 @@ int main(int argc, char **argv){
 	TwistPublisher run(argv); 
 	ros::Rate loop_rate(10);
 	
-/*	int z=0;//testing
-	int j=30;
+	int z=0;//testing
+/*	int j=30;
 	run.updateval(z);*/
 	// ~ while everything is running as it should
 	while(ros::ok()){
- 	
+ 
+		ROS_INFO("SUBSCRIBING TO CAMERA");
 		ros::spinOnce();
+	
 		/*if(j==0){
 			z+=1;
 			if(z==20){

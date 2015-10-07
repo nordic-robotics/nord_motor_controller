@@ -20,12 +20,12 @@ class MotorController
 
 	MotorController(char** argv){
 
-		command_sub = n.subscribe("/motor_controller/twist", 1000, &MotorController::commandCallback, this);
-		encoder_sub = n.subscribe("/arduino/encoders", 100, &MotorController::encoderCallback, this);
+		command_sub = n.subscribe("/motor_controller/twist", 1, &MotorController::commandCallback, this);
+		encoder_sub = n.subscribe("/arduino/encoders", 1, &MotorController::encoderCallback, this);
 		
         estimated_w1=0; estimated_w2=0 ;
 
-		PWM_pub = n.advertise<ras_arduino_msgs::PWM>("/arduino/pwm", 1000);
+		PWM_pub = n.advertise<ras_arduino_msgs::PWM>("/arduino/pwm", 1);
 
         b= 0.204; r= 0.09935;
 		pi = 3.141592;
@@ -38,7 +38,7 @@ class MotorController
 		
 		/*p_1=4.9 i_1=2.8 d_1=-0.25
 		p_2=6.3 i_2=3.45 d_1=-0.5*/
-
+		// 4.9 2.8 -0.25 6.3 3.45 -0.5
 		d_p1 = 0; d_p2 = 0;
 		i_p1 = 0; i_p2 = 0;
 
