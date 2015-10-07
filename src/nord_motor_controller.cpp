@@ -64,10 +64,6 @@ class MotorController
 
 	}
 
-	~MotorController()
-    {
-        delete this;
-    }
 
 	void commandCallback(const geometry_msgs::Twist command){
 		ROS_INFO("ENTER COMMAND CALLBACK");

@@ -5,6 +5,7 @@
 #include "ras_arduino_msgs/PWM.h"
 #include "ras_arduino_msgs/Encoders.h"
 #include "geometry_msgs/Twist.h"
+#include "nord_messages/RelativePoint.h"
 
 #include "pid.hpp"
 class TwistPublisher
@@ -17,7 +18,7 @@ class TwistPublisher
 	ros::Subscriber direction_sub;
 	
 	TwistPublisher(char ** argv){
-		//direction_sub=n.subscribe("name",1000,&TwistPublisher::directionCallback);//NAME OF THE TOPIC!!!!
+		direction_sub=n.subscribe("/nord/img/closest",1000,&TwistPublisher::directionCallback);//NAME OF THE TOPIC!!!!
 		twist_pub = n.advertise<geometry_msgs::Twist>("/motor_controller/twist", 1000);
 		
 		twist.linear.x=0; twist.linear.y=0; twist.linear.z=0;
@@ -51,13 +52,13 @@ class TwistPublisher
 				vec_degree[x]=-25*pi/(180*(x+1));
 			}
 		}*/
-		vec_dist={0.35,1,2,3,3.1,0.8,2,0.9,0.7,0.2,10,5,6,7,8,9,4.4,3.5,1.6,0.6};
-		vec_degree={-10,1.1,5.6,9.2,10,-8.3,7,-5.6,-25,25.9,3,15.5,-6,-10.6,-7,-20,6.7,10,-7,3};
+		// vec_dist={0.35,1,2,3,3.1,0.8,2,0.9,0.7,0.2,10,5,6,7,8,9,4.4,3.5,1.6,0.6};
+		// vec_degree={-10,1.1,5.6,9.2,10,-8.3,7,-5.6,-25,25.9,3,15.5,-6,-10.6,-7,-20,6.7,10,-7,3};
 
-		for (auto& e : vec_degree)
-		{
-			e *= pi/180;
-		}
+		// for (auto& e : vec_degree)
+		// {
+		// 	e *= pi/180;
+		// }
 		
 		ControlPart();
 	}
@@ -80,21 +81,21 @@ class TwistPublisher
 		twist_pub.publish(twist);
 	}
 	
-	/*void directionCallback(const nord_messages::RelativePoint command){
+	void directionCallback(const nord_messages::RelativePoint command){
         des_dist= command.distance;
         des_dir= command.angle;
 		est_dist=0.35;
 		est_dir=0;
-	}*/
+	}
 	
-	void updateval(int z){// just for testing
+	/*void updateval(int z){// just for testing
 		des_dist= vec_dist[z];
         des_dir= vec_degree[z];
 		est_dist=0.35;
 		est_dir=0;
 		
 	}
-	
+	*/
 	void print_info(){
 		ROS_INFO("vel: [%f]", twist.linear.x);
  		ROS_INFO("ang_vel: [%f]", twist.angular.z);
@@ -132,14 +133,14 @@ int main(int argc, char **argv){
 	TwistPublisher run(argv); 
 	ros::Rate loop_rate(10);
 	
-	int z=0;//testing
+/*	int z=0;//testing
 	int j=30;
-	run.updateval(z);
+	run.updateval(z);*/
 	// ~ while everything is running as it should
 	while(ros::ok()){
  	
 		ros::spinOnce();
-		if(j==0){
+		/*if(j==0){
 			z+=1;
 			if(z==20){
 				break;
@@ -148,7 +149,7 @@ int main(int argc, char **argv){
 			j=30;
 		}else{
 			j-=1;
-		}
+		}*/
 		run.ControlPart();
 		run.print_info();
 		loop_rate.sleep(); // go to sleep
