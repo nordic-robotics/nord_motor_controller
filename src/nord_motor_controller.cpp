@@ -27,7 +27,7 @@ class MotorController
 
 		PWM_pub = n.advertise<ras_arduino_msgs::PWM>("/arduino/pwm", 1000);
 
-        	b= 0.204; r= 0.09935;
+        b= 0.204; r= 0.09935;
 		pi = 3.141592;
 
 		pwm.PWM1 = 0; pwm.PWM2 = 0;
@@ -46,9 +46,11 @@ class MotorController
 
 		error1 		= 0; error2 	= 0;
 		old_error1 	= 0; old_error2 = 0;
-
+		forward   = 0;
+		desired_w = 0;
 		print_info();
 
+		
 		// pwm1 =kontroll::pid<double>(p_1, i, d);
 		// pwm1.max =  255;
 		// pwm1.min = -255;
@@ -56,10 +58,7 @@ class MotorController
 		// pwm2.max =  255;
 		// pwm2.min = -255;
 
-		forward   = 0.6;//delete after gains setting
-        	desired_w = 0;
-       		desired_w1 = (forward-(b/2)*desired_w)/r;
-		desired_w2 = (forward+(b/2)*desired_w)/r;
+
 
 		controllerPart();
 
@@ -71,6 +70,7 @@ class MotorController
     }
 
 	void commandCallback(const geometry_msgs::Twist command){
+		ROS_INFO("ENTER COMMAND CALLBACK");
         forward   = command.linear.x;
         desired_w = command.angular.z;
         desired_w1 = (forward-(b/2)*desired_w)/r;//check signs to turns
@@ -88,6 +88,18 @@ class MotorController
 
 
 	void  controllerPart(){
+
+		// while(iterating < 1000){
+		// 	forward   = 0.3;//delete after gains setting
+	 //        desired_w = 0;
+	 //        iterating++;
+	 //        if(iterating == 60){
+	 //        	forward += 0.4 
+	 //        }
+  //       }
+
+  //      	desired_w1 = (forward-(b/2)*desired_w)/r;
+		// desired_w2 = (forward+(b/2)*desired_w)/r;
 		
 		error1 = desired_w1 - estimated_w1;
 		error2 = desired_w2 - estimated_w2;
@@ -99,9 +111,17 @@ class MotorController
 	        d_p1 = d_1*(error1-old_error1)/dt;
 	        d_p2 = d_2*(error2-old_error2)/dt;
         }
-
-        pwm.PWM1 = 20+int(p_1*error1 + i_p1 + d_p1);
-        pwm.PWM2 =30+ int(p_2*error2 + i_p2 + d_p2);
+        if(desired_w1>0){
+        	pwm.PWM1 = 20+int(p_1*error1 + i_p1 + d_p1);
+    	}else if(desired_w1<0){
+    		pwm.PWM1 = -25+int(p_1*error1 + i_p1 + d_p1);
+    	}
+    	if(desired_w2>0){
+        	pwm.PWM2 = 30+ int(p_2*error2 + i_p2 + d_p2);
+    	}else if(desired_w2<0){
+    		pwm.PWM2 = -25+ int(p_2*error2 + i_p2 + d_p2);
+    	}
+        
 
        /* if(desired_w1>0 && pwm.PWM1<70){
         	pwm.PWM1=70;
@@ -137,19 +157,16 @@ class MotorController
 
 	void print_info(){
 		ROS_INFO("forward: [%f]", forward);
- 		ROS_INFO("estimated_w1: [%f]", estimated_w1);
- 		ROS_INFO("desired_w1: [%f]", desired_w1);
- 		ROS_INFO("estimated_w2: [%f]", estimated_w2);
- 		ROS_INFO("desired_w2: [%f]", desired_w2);
- 		ROS_INFO("p1: %f i1:%f  d1:%f ",p_1,i_1,d_1);
- 		ROS_INFO("p2: %f i2:%f  d2:%f ",p_2,i_2,d_2);
-		ROS_INFO("i_p1: [%f]  i_p2: [%f]", i_p1,i_p2);
-		ROS_INFO("d_p1:[%f]   d_p2: [%f]",d_p1,d_p2);
+ 		ROS_INFO("estimated_w1: [%f] estimated_w2: [%f] ", estimated_w1, estimated_w2);
+ 		ROS_INFO("desired_w1: [%f] desired_w2: [%f]",desired_w1, desired_w2);
+ 		ROS_INFO("p1:%f i1:%f  d1:%f ",p_1,i_1,d_1);
+ 		ROS_INFO("p2:%f i2:%f  d2:%f ",p_2,i_2,d_2);
+		ROS_INFO("i_p1:[%f]  i_p2:[%f]", i_p1,i_p2);
+		ROS_INFO("d_p1:[%f]   d_p2:[%f]",d_p1,d_p2);
 		ROS_INFO("error1:[%f]  error2:[%f]",error1,error2);
 		double test  = pwm.PWM1;
  		double test2 = pwm.PWM2;
- 		ROS_INFO("PWM1: [%f]", test);
- 		ROS_INFO("PWM2: [%f]", test2);
+ 		ROS_INFO("PWM1:[%f] PWM2:[%f]", test, test2);
 	}
 
 	private:
@@ -196,7 +213,7 @@ int main(int argc, char **argv){
 	// ~ while everything is running as it should
 	while(ros::ok()){
  		//run.print_info();
-      		run.controllerPart();
+      	run.controllerPart();
 		ros::spinOnce();
 		loop_rate.sleep(); // go to sleep
 
