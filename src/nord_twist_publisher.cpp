@@ -4,7 +4,7 @@
 #include <string>
 #include "ras_arduino_msgs/PWM.h"
 #include "ras_arduino_msgs/Encoders.h"
-#include "geometry_msgs/Twist.h"
+#include "nord_messages/MotorTwist.h"
 #include "nord_messages/RelativePoint.h"
 
 #include "pid.hpp"
@@ -19,11 +19,11 @@ class TwistPublisher
 	
 	TwistPublisher(char ** argv){
 		direction_sub=n.subscribe("/nord/img/closest",1,&TwistPublisher::directionCallback, this);//NAME OF THE TOPIC!!!!
-		twist_pub = n.advertise<geometry_msgs::Twist>("/motor_controller/twist", 1);
+		twist_pub = n.advertise<nord_messages::MotorTwist>("/motor_controller/twist", 1);
 		
-		twist.linear.x=0; twist.linear.y=0; twist.linear.z=0;
-		twist.angular.x=0; twist.angular.y=0; twist.angular.z=0;
-		
+		twist.velocity=0;
+		twist.angular_vel=0; 
+
 		dist_object=0; 
 		dir_object =0;
 
@@ -69,8 +69,8 @@ class TwistPublisher
 	
 	void  ControlPart(){
 		
-		twist.linear.x= vel_pid(des_dist,dist_object , dt);
-   		twist.angular.z = ang_pid(des_dir, dir_object, dt);
+		twist.velocity= vel_pid(des_dist,dist_object , dt);
+   		twist.angular_vel = ang_pid(des_dir, dir_object, dt);
 
 	/*	if(real_vel<0.3 && real_vel>0){
 			real_vel=0;
@@ -106,8 +106,8 @@ class TwistPublisher
 	}
 	*/
 	void print_info(){
-		ROS_INFO("vel: [%f]", twist.linear.x);
- 		ROS_INFO("ang_vel: [%f]", twist.angular.z);
+		ROS_INFO("vel: [%f]", twist.velocity);
+ 		ROS_INFO("ang_vel: [%f]", twist.angular_vel);
  		ROS_INFO("des_dist: [%f]", des_dist);
  		ROS_INFO("est_dist: [%f]", dist_object);
  		ROS_INFO("des_dir: [%f]", des_dir);
@@ -118,7 +118,7 @@ class TwistPublisher
 	
 	private:
 
-		geometry_msgs::Twist twist; 
+		nord_messages::MotorTwist twist; 
 		
 		std::vector<double> vec_dist; std::vector<double> vec_degree;
 		int x; 

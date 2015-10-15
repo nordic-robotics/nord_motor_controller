@@ -130,18 +130,22 @@ include_directories(
 ## Declare a C++ executable
 add_executable(nord_motor_controller src/nord_motor_controller.cpp)
 add_executable(nord_twist_publisher src/nord_twist_publisher.cpp)
+add_executable(nord_wall_following src/nord_wall_following.cpp)
 
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(nord_motor_controller ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(nord_twist_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(nord_wall_following ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(nord_motor_controller
   ${catkin_LIBRARIES})
   target_link_libraries(nord_twist_publisher
+  ${catkin_LIBRARIES})
+  target_link_libraries(nord_wall_following
   ${catkin_LIBRARIES})
 
 
