@@ -136,12 +136,16 @@ class MotorController
         	pwm.PWM1 = 29+int(p_1*error1 + i_p1 + d_p1);
     	}else if(desired_w1<0){
     		pwm.PWM1 = -25+int(p_1*error1 + i_p1 + d_p1);
-    	}
+    	}else{
+			pwm.PWM1 = 0;
+		}
     	if(desired_w2>0){
         	pwm.PWM2 = 30+ int(p_2*error2 + i_p2 + d_p2);
     	}else if(desired_w2<0){
     		pwm.PWM2 = -25+ int(p_2*error2 + i_p2 + d_p2);
-    	}
+    	}else{
+			pwm.PWM2 = 0;
+		}
         
 
        /* if(desired_w1>0 && pwm.PWM1<70){

@@ -25,16 +25,21 @@ class WallFollowing
 	int m_val=3;
 	
 
-	WallFollowing(char ** argv) : vals_lfront(m_val), vals_lback(m_val),vals_rfront(m_val),vals_rback(m_val){
+	WallFollowing(char ** argv) : vals_lfront(m_val), vals_lback(m_val),vals_rfront(m_val),vals_rback(m_val),vals_Front(m_val){
 
 		adc_sub = n.subscribe("/arduino/adc", 1,&WallFollowing::adcMsgCallback, this);
 
 		twist_pub = n.advertise<nord_messages::MotorTwist>("/motor_controller/twist", 1);
 
-		des_dist=dist_to_adc(0.1);
-
-		twist.velocity=0.6;
+		des_dist=dist_to_adc_short(0.1);
+		dist_turn=dist_to_adc_long(0.1);
+		
+		wait_sensors=3;
+		
+		forward=0.6;
+		twist.velocity=forward;
 		twist.angular_vel=0; 
+		pi=3.14159265359;
 		
 		Lfront = 0;
   		Lback =0; 
@@ -48,6 +53,7 @@ class WallFollowing
 			vals_lback[val_i]=0;
 			vals_rfront[val_i]=0;
 			vals_rback[val_i]=0;
+			vals_Front[val_i]=0;
 		}
 		val_i=0;
 
@@ -56,8 +62,12 @@ class WallFollowing
 
 	}
 
-	int dist_to_adc(float x){
+	int dist_to_adc_short(float x){
 		return (276.3*exp(x*(-3.619))+772.3*exp(x*(-26.41)));
+	}
+	
+	int dist_to_adc_long(float x){
+		return (793.9*exp(x*(-10.67))+212.5*exp(x*(-1.333)));
 	}
 
 	void  ControlPart(){
@@ -71,14 +81,37 @@ class WallFollowing
 		med_rback=vecMedian(vals_rback);
 		med_lfront=vecMedian(vals_lfront);
 		med_lback=vecMedian(vals_lback);
+		med_Front=vecMedian(vals_Front);
 		
-		if(((med_rfront+med_rback)/2.0)<((med_lfront+med_lback)/2.0)){
-			twist.angular_vel=(g_par*(med_lfront-med_lback)+g_dist*(des_dist-((med_lfront+med_lback)/2.0)));
-		}else{
-			twist.angular_vel=-(g_par*(med_rfront-med_rback)+g_dist*(des_dist-((med_rfront+med_rback)/2.0)));
+		if(med_rfront==-1 || med_rback==-1 || med_lfront==-1 || med_lback==-1 || med_Front==-1 ){
+			ROS_INFO("Something went wrong with the medians.Exiting wall_following controller.");
+			std::exit(EXIT_FAILURE);
 		}
-	
-		twist_pub.publish(twist);
+		
+		if(wait_sensors==0){
+			if(med_Front>dist_turn){
+				if(((med_rfront+med_rback)/2.0)<((med_lfront+med_lback)/2.0)){
+					twist.angular_vel=(g_par*(med_lfront-med_lback)+g_dist*(des_dist-((med_lfront+med_lback)/2.0)));
+				}else{
+					twist.angular_vel=-(g_par*(med_rfront-med_rback)+g_dist*(des_dist-((med_rfront+med_rback)/2.0)));
+				}
+				twist_pub.publish(twist);
+			}else{
+				if(med_Front>dist_turn){
+					twist.angular_vel=pi/4;
+				}else{
+					twist.angular_vel=-pi/4;
+				}
+				twist.velocity=0;
+				twist_pub.publish(twist);
+				ros::Duration(1, 0).sleep();//Sleep for one second (1,0)1 second and 0 nanoseconds
+				twist.velocity=forward;
+				wait_sensors=3;
+			}
+		}else{
+			wait_sensors-=1;
+		}
+		
 
 	}
 
@@ -133,19 +166,24 @@ class WallFollowing
 
 		nord_messages::MotorTwist twist; 
 		
-		int des_dist;
+		int des_dist; int dist_turn;
 		unsigned int short Rfront; unsigned int short Rback;
 		unsigned int short Lfront; unsigned int short Lback;
 		unsigned int short Front; unsigned int short Back;
 		
 		std::vector<int> vals_rfront; std::vector<int> vals_lfront;
 		std::vector<int> vals_rback; std::vector<int> vals_lback;
+		std::vector<int> vals_Front;
 		int val_i;
 		
 		int med_rfront; int med_rback;
 		int med_lfront; int med_lback;
+		int med_Front;
 		
 		double g_par; double g_dist;
+		double forward; double pi;
+		
+		int wait_sensors;
 
 };
 
