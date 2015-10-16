@@ -4,7 +4,7 @@
 #include <string>
 #include "ras_arduino_msgs/PWM.h"
 #include "ras_arduino_msgs/Encoders.h"
-#include "geometry_msgs/Twist.h"
+#include "nord_messages/MotorTwist.h"
 
 #include "pid.hpp"
 
@@ -13,7 +13,6 @@ class MotorController
 	public:
 
 	ros::NodeHandle n;
-
 	ros::Publisher PWM_pub;
 	ros::Subscriber command_sub;
 	ros::Subscriber encoder_sub;
@@ -27,7 +26,7 @@ class MotorController
 
 		PWM_pub = n.advertise<ras_arduino_msgs::PWM>("/arduino/pwm", 1);
 
-        b= 0.204; r= 0.09935;
+        b= 0.2015; r= 0.09935;
 		pi = 3.141592;
 
 		pwm.PWM1 = 0; pwm.PWM2 = 0;
@@ -36,18 +35,43 @@ class MotorController
 		i_1	= std::stod(argv[2]); 	i_2 = std::stod(argv[5]);
 		d_1 = std::stod(argv[3]);   d_2 = std::stod(argv[6]);*/
 		
-		p_1=4.9; i_1=2.8; d_1=-0.25;
-		p_2=6.3; i_2=3.45; d_1=-0.5;
+		//Old valuse
+		// p_1=4.9; i_1=2.8; d_1=-0.25;
+		// p_2=6.3; i_2=3.45; d_1=-0.5;
 		// 4.9 2.8 -0.25 6.3 3.45 -0.5
+
+		// 1 = RIGHT 2 = LEFT
+		// BLACK RED RED BLACK
+
+		// Gustav left
+		// p_1=6.3*1.13; i_1=3.45*1.12; d_1=-0.25*1;
+		// p_2=4.9*1.35; i_2=2.8*1.35;  d_2=-0.25*1;
+
+		p_1=5; i_1 = 2.85; d_1=-0.2;
+		p_2=4.6; i_2 = 2.7;  d_2=-0.2;
+
+		/*Goncalo Gains
+		p_1=5; i_1 = 2.85; d_1=-0.2;
+		p_2=4.6; i_2 = 2.7;  d_2=-0.2;
+		5 2.85 -0.2 4.6 2.7 -0.2
+
+		*/
+
 		d_p1 = 0; d_p2 = 0;
 		i_p1 = 0; i_p2 = 0;
 
 		dt = 1.0/10; 
 
+		/*desired_w1 = 0.6*2*pi;
+		desired_w2 = 0.6*2*pi;*/
+
 		error1 		= 0; error2 	= 0;
 		old_error1 	= 0; old_error2 = 0;
 		forward   = 0;
 		desired_w = 0;
+
+		desired_w1 = (forward-(b/2)*desired_w)/r;//check signs to turns
+		desired_w2 = (forward+(b/2)*desired_w)/r;
 		print_info();
 
 		
@@ -65,11 +89,11 @@ class MotorController
 	}
 
 
-	void commandCallback(const geometry_msgs::Twist command){
+	void commandCallback(const nord_messages::MotorTwist command){
 		ROS_INFO("ENTER COMMAND CALLBACK");
-        forward   = command.linear.x;
-        desired_w = command.angular.z;
-        desired_w1 = (forward-(b/2)*desired_w)/r;//check signs to turns
+		forward   = command.velocity;
+		desired_w = command.angular_vel;
+		desired_w1 = (forward-(b/2)*desired_w)/r;//check signs to turns
 		desired_w2 = (forward+(b/2)*desired_w)/r;
 
 	}
@@ -79,6 +103,7 @@ class MotorController
 		//delta_2=value.delta_encoder2;
 		estimated_w1 = -(value.delta_encoder2)*2*pi*10.0/(360);
 		estimated_w2 = -(value.delta_encoder1)*2*pi*10.0/(360);
+		ROS_INFO("ENCODER CALLBACK");
         //controllerPart();
 	}
 
@@ -108,7 +133,7 @@ class MotorController
 	        d_p2 = d_2*(error2-old_error2)/dt;
         }
         if(desired_w1>0){
-        	pwm.PWM1 = 20+int(p_1*error1 + i_p1 + d_p1);
+        	pwm.PWM1 = 29+int(p_1*error1 + i_p1 + d_p1);
     	}else if(desired_w1<0){
     		pwm.PWM1 = -25+int(p_1*error1 + i_p1 + d_p1);
     	}
@@ -144,9 +169,7 @@ class MotorController
    		// pwm.PWM2 = pwm2(estimated_w2, desired_w2, dt);
 		ROS_INFO("About to publish");
 		print_info();
-
-		// pwm.PWM1 = 100;
-		// pwm.PWM2 = 100;
+		
  		PWM_pub.publish(pwm);
 
 	}
