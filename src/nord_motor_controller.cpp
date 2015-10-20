@@ -31,9 +31,9 @@ class MotorController
 
 		pwm.PWM1 = 0; pwm.PWM2 = 0;
 
-		p_1 = std::stod(argv[1]); 	p_2 = std::stod(argv[4]);
+		/*p_1 = std::stod(argv[1]); 	p_2 = std::stod(argv[4]);
 		i_1	= std::stod(argv[2]); 	i_2 = std::stod(argv[5]);
-		d_1 = std::stod(argv[3]);   d_2 = std::stod(argv[6]);
+		d_1 = std::stod(argv[3]);   d_2 = std::stod(argv[6]);*/
 		
 		//Old valuse
 		// p_1=4.9; i_1=2.8; d_1=-0.25;
@@ -47,14 +47,18 @@ class MotorController
 		// p_1=6.3*1.13; i_1=3.45*1.12; d_1=-0.25*1;
 		// p_2=4.9*1.35; i_2=2.8*1.35;  d_2=-0.25*1;
 
-		/*p_1=5; i_1 = 2.85; d_1=-0.2;
-		p_2=4.6; i_2 = 2.7;  d_2=-0.2;*/
+		p_1=2.5; i_1 = 8.5; d_1=-0.35;
+		p_2=2.5; i_2 = 8;  d_2=-0.35;
 
 		/*Goncalo Gains
 		p_1=5; i_1 = 2.85; d_1=-0.2;
 		p_2=4.6; i_2 = 2.7;  d_2=-0.2;
 		5 2.85 -0.2 4.6 2.7 -0.2
 
+		
+		controller with exponentials:
+		p_1=2.5; i_1 = 8.5; d_1=-0.35;
+		p_2=2.5; i_2 = 8;  d_2=-0.35;
 		*/
 
 		d_p1 = 0; d_p2 = 0;
