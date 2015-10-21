@@ -60,10 +60,10 @@ class WallFollowing
 		val_i=0;
 		val_i_front=0;
 
-		/*g_par=std::stod(argv[1]);
-		g_dist=std::stod(argv[2]);*/
+		g_par=std::stod(argv[1]);
+		//g_dist=std::stod(argv[2]);
 		
-		g_par=0.0035;
+		//g_par=0.0035;
 		g_dist=0;
 
 	}
