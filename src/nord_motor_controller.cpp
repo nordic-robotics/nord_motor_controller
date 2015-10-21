@@ -196,7 +196,7 @@ class MotorController
 	}
 
 	void print_info(){
-		ROS_INFO("forward: [%f]", forward);
+		ROS_INFO("forward: [%f] ang_vel: [%f]", forward,desired_w);
  		ROS_INFO("estimated_w1: [%f] estimated_w2: [%f] ", estimated_w1, estimated_w2);
  		ROS_INFO("desired_w1: [%f] desired_w2: [%f]",desired_w1, desired_w2);
  		ROS_INFO("p1:%f i1:%f  d1:%f ",p_1,i_1,d_1);

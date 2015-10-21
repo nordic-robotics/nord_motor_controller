@@ -23,7 +23,7 @@ class WallFollowing
 
 	ros::Subscriber adc_sub;
 	int m_val=5;
-	int m_val_front=1;
+	int m_val_front=3;
 
 	WallFollowing(char ** argv) : vals_lfront(m_val), vals_lback(m_val),vals_rfront(m_val),vals_rback(m_val),vals_Front(m_val_front){
 
@@ -32,11 +32,11 @@ class WallFollowing
 		twist_pub = n.advertise<nord_messages::MotorTwist>("/nord/motor_controller/twist", 1);
 
 		des_dist=dist_to_adc_short(0.1);
-		dist_turn=dist_to_adc_long(0.25);
+		dist_turn=dist_to_adc_long(0.20);
 		
 		wait_sensors=m_val;
 		
-		forward=0.25;
+		forward=0.15;
 		twist.velocity=forward;
 		twist.angular_vel=0; 
 		pi=3.14159265359;
@@ -60,10 +60,10 @@ class WallFollowing
 		val_i=0;
 		val_i_front=0;
 
-		g_par=std::stod(argv[1]);
+		//g_par=std::stod(argv[1]);
 		//g_dist=std::stod(argv[2]);
 		
-		//g_par=0.0035;
+		g_par=0.001;
 		g_dist=0;
 
 	}
@@ -94,15 +94,19 @@ class WallFollowing
 		
 		if(wait_sensors==0){
 			if(med_Front < dist_turn){
-				if(((med_rfront+med_rback)/2.0)<((med_lfront+med_lback)/2.0)){
-					twist.angular_vel=(g_par*(med_lfront-med_lback)+g_dist*(des_dist-((med_lfront+med_lback)/2.0)));
+				if ((((med_rfront+med_rback)/2.0)>des_dist) || (((med_lfront+med_lback)/2.0)>des_dist)){
+					if(((med_rfront+med_rback)/2.0)<((med_lfront+med_lback)/2.0)){
+						twist.angular_vel=(g_par*(med_lfront-med_lback)+g_dist*(des_dist-((med_lfront+med_lback)/2.0)));
+					}else{
+						twist.angular_vel=-(g_par*(med_rfront-med_rback)+g_dist*(des_dist-((med_rfront+med_rback)/2.0)));
+					}
 				}else{
-					twist.angular_vel=-(g_par*(med_rfront-med_rback)+g_dist*(des_dist-((med_rfront+med_rback)/2.0)));
+					twist.angular_vel=0;
 				}
 				twist_pub.publish(twist);
 			}else{
 				ROS_INFO("TURN- dist_turn:[%d] med_Front:[%d]",dist_turn,med_Front);
-				if(((med_rfront+med_rback)/2.0)<((med_lfront+med_lback)/2.0)){
+				if(((Rfront+Rback)/2.0)<((Lfront+Lback)/2.0)){
 					twist.angular_vel=pi/2;
 				}else{
 					twist.angular_vel=-pi/2;
@@ -110,7 +114,7 @@ class WallFollowing
 				twist.velocity=0;
 				twist_pub.publish(twist);
 				ROS_INFO("TURNNNNN");
-				ros::Duration(1,0).sleep();//Sleep for one second (1,0)1 second and 0 nanoseconds
+				ros::Duration(1,100000000).sleep();//Sleep for one second (1,0)1 second and 0 nanoseconds
 				twist.angular_vel=0;
 				twist.velocity=0;
 				twist_pub.publish(twist);
