@@ -144,8 +144,8 @@ class MotorController
  			pwm.PWM2 = -170;
  		}
 
-		/*ROS_INFO("About to publish");
-		print_info();*/
+		ROS_INFO("About to publish");
+		print_info();
 		
  		PWM_pub.publish(pwm);
 
