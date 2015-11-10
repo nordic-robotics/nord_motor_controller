@@ -32,7 +32,7 @@ class WallFollowing
 		twist_pub = n.advertise<nord_messages::MotorTwist>("/nord/motor_controller/twist", 1);
 
 		des_dist=dist_to_adc_short(0.1);
-		dist_turn=dist_to_adc_long(0.20);
+		dist_turn=dist_to_adc_long(0.185);
 		
 		wait_sensors=m_val;
 		
