@@ -55,8 +55,8 @@ class MotorController
 		forward   = 0;
 		desired_w = 0;
 
-		desired_w1 = (forward-(b/2)*desired_w)/r;//check signs to turns
-		desired_w2 = (forward+(b/2)*desired_w)/r;
+		desired_w1 = (forward+(b/2)*desired_w)/r;//check signs to turns
+		desired_w2 = (forward-(b/2)*desired_w)/r;
 		print_info();
 
 		
@@ -85,8 +85,8 @@ class MotorController
 		//ROS_INFO("ENTER COMMAND CALLBACK");
 		forward   = command.velocity;
 		desired_w = command.angular_vel;
-		desired_w1 = (forward-(b/2)*desired_w)/r;//check signs to turns
-		desired_w2 = (forward+(b/2)*desired_w)/r;
+		desired_w1 = (forward+(b/2)*desired_w)/r;//check signs to turns
+		desired_w2 = (forward-(b/2)*desired_w)/r;
 
 	}
 
