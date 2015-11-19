@@ -5,7 +5,7 @@
 #include "ras_arduino_msgs/PWM.h"
 #include "ras_arduino_msgs/Encoders.h"
 #include "nord_messages/MotorTwist.h"
-
+#include <cmath.h>
 #include "pid.hpp"
 
 class MotorController
@@ -31,13 +31,12 @@ class MotorController
 
 		pwm.PWM1 = 0; pwm.PWM2 = 0;
 
-		p_1=2.5; i_1 = 8.5; d_1=-0.35;
-		p_2=2.5; i_2 = 8;  d_2=-0.35;
+		p_1 = std::stod(argv[1]); 	p_2 = std::stod(argv[4]);
+		i_1	= std::stod(argv[2]); 	i_2 = std::stod(argv[5]);
+		d_1 = std::stod(argv[3]);   d_2 = std::stod(argv[6]);
 
-		/*Goncalo Gains
-		p_1=5; i_1 = 2.85; d_1=-0.2;
-		p_2=4.6; i_2 = 2.7;  d_2=-0.2;
-		5 2.85 -0.2 4.6 2.7 -0.2*/
+		//p_1=0; i_1 = 8.5; d_1=-0.35;
+		//p_2=0; i_2 = 8;  d_2=-0.35;
 
 		/*
 		controller with exponentials:
@@ -74,11 +73,11 @@ class MotorController
 	}
 
 	int err_to_pwm1(double err){
-		return 52.73*exp(err*0.0787)+8.128e-09*exp(err*1.391);
+		return (61.1*std::exp(x*(0.03917))+1.125*std::exp(x*(0.285)));
 	}
 
 	int err_to_pwm2(double err){
-		return 52.42*exp(err*0.07561)+6.818e-15*exp(err*2.251);
+		return (58.74*std::exp(x*(0.05823))+0.007478*std::exp(x*(0.5654)));
 	}
 
 	void commandCallback(const nord_messages::MotorTwist command){
