@@ -197,7 +197,7 @@ int main(int argc, char **argv){
 	ros::init(argc, argv, "nord_motor_controller");
 	
 	MotorController run(argv); 
-	ros::Rate loop_rate(20);
+	ros::Rate loop_rate(10);
 	
 
 	// ~ while everything is running as it should
