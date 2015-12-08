@@ -65,7 +65,7 @@ class MotorController
 		// pwm2.max =  255;
 		// pwm2.min = -255;
 
-
+		//counter=0;
 
 		controllerPart();
 
@@ -85,6 +85,7 @@ class MotorController
 		desired_w = command.angular_vel;
 		desired_w1 = (forward+(b/2)*desired_w)/r;//check signs to turns
 		desired_w2 = (forward-(b/2)*desired_w)/r;
+		//counter=0;
 
 	}
 
@@ -146,9 +147,14 @@ class MotorController
  			pwm.PWM2 = -200;
  		}
 
-		ROS_INFO("About to publish");
-		print_info();
-		
+		//ROS_INFO("About to publish");
+		//print_info();
+				
+		/*counter++;
+		if(counter>30){
+			pwm.PWM1 = 0;
+			pwm.PWM2 = 0;
+		}*/
  		PWM_pub.publish(pwm);
 
 	}
@@ -187,6 +193,7 @@ class MotorController
 		double d_p1;		double d_p2;
 
 		double dt;
+		int counter;
 		
  };
 
